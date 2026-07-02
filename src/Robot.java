@@ -1,7 +1,7 @@
 import java.awt.Point;
+import java.util.PriorityQueue;
 
-
-class Node {
+class Node implements Comparable<Node> {
     int f=0;
     int g=0;
     int h=0;
@@ -16,9 +16,23 @@ class Node {
         this.position = position;
         this.parent = null;
     }
+
+    @Override
+    public int compareTo(Node other) {
+        if (this.f == other.f) {
+            return Integer.compare(this.h, other.h);
+        }
+        return Integer.compare(this.f, other.f);
+    }
 }
 
-public class Robot {
+class AStar {
+    PriorityQueue<Node> openList = new PriorityQueue<>();
+    int[][] grid;
+
+    public AStar(int[][] grid) {
+        this.grid = grid;
+    }
+
 
 }
-
