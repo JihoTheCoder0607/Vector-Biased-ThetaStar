@@ -1,7 +1,6 @@
 import java.awt.Point;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.PriorityQueue;
+import java.util.*;
+
 import static java.lang.Math.pow;
 
 class Node implements Comparable<Node> {
@@ -112,5 +111,17 @@ class AStar {
             this.getNeighbors(current);
         }
         return null;
+    }
+    public ArrayList<Node> reconstructPath(Node goalNode) {
+        ArrayList<Node> path = new ArrayList<>();
+        Node current = goalNode;
+
+        while (current != null) {
+            path.add(current);
+            current = current.parent;
+        }
+
+        Collections.reverse(path);
+        return path;
     }
 }
