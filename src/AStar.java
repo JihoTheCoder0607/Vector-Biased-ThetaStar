@@ -86,7 +86,6 @@ class AStar {
                         neighborNode.h = calculateDistance(neighbor, goal);
                         neighborNode.f = neighborNode.g + neighborNode.h;
 
-                        openList.remove(neighborNode);
                         openList.add(neighborNode);
                     }
                 }
