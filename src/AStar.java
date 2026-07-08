@@ -2,6 +2,7 @@ import java.awt.Point;
 import java.util.*;
 
 import static java.lang.Math.pow;
+import static java.lang.Math.sqrt;
 
 class Node implements Comparable<Node> {
     double g = Double.POSITIVE_INFINITY;
@@ -54,7 +55,7 @@ class AStar {
     }
 
     void getNeighbors(Node currentNode) {
-        int[][] directions = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}};
+        int[][] directions = {{-1, 0}, {-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}, {1, -1}};
         for (int[] direction : directions) {
             int dy = direction[0];
             int dx = direction[1];
@@ -68,7 +69,7 @@ class AStar {
                     continue;
                 }
                 if (grid[newY][newX] == ' ' || grid[newY][newX] == 'G') {
-                    double tentativeG = currentNode.g + 1;
+                    double tentativeG = currentNode.g + sqrt(dy * dy + dx * dx);
 
                     Node neighborNode;
                     if (!nodes.containsKey(neighbor)) {
