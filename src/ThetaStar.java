@@ -1,7 +1,6 @@
 import java.awt.*;
 
-import static java.lang.Math.abs;
-import static java.lang.Math.sqrt;
+import static java.lang.Math.*;
 
 public class ThetaStar extends AStar {
     public ThetaStar(char[][] grid, Point start, Point goal) {
@@ -40,6 +39,16 @@ public class ThetaStar extends AStar {
             }
         }
 
+    }
+
+    private double crossTrack(Node node) {
+        double dx = goal.x - start.x;
+        double dy = goal.y - start.y;
+
+        double numerator = abs(dy * node.position.x - dx * node.position.y + goal.x * start.y - goal.y * start.x);
+        double denominator = sqrt(pow(dx, 2) + pow(dy, 2));
+
+        return numerator / denominator;
     }
 
     @Override
