@@ -51,6 +51,13 @@ public class ThetaStar extends AStar {
         return numerator / denominator;
     }
 
+    private double angle(Node node) {
+        double m1 = (double) (goal.y - start.y) / (goal.x - start.x);
+        double m2 = (double) (node.position.y - node.parent.position.y) / (node.position.x - node.parent.position.x);
+        double tan = abs((m1 - m2) / (1 + m1 * m2));
+        return atan(tan);
+    }
+
     @Override
     void getNeighbors(Node currentNode) {
         int[][] directions = {{-1, 0}, {-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}};
