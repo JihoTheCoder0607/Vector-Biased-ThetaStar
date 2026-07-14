@@ -47,7 +47,7 @@ public class AStar {
                 if (closedSet.contains(neighbor)){
                     continue;
                 }
-                if (grid[newY][newX] == ' ' || grid[newY][newX] == 'G') {
+                if (grid[newY][newX] == ' ' || grid[newY][newX] == 'E') {
                     double tentativeG = currentNode.g + sqrt(dy * dy + dx * dx);
 
                     Node neighborNode;

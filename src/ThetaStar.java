@@ -61,7 +61,7 @@ public class ThetaStar extends AStar {
                 if (closedSet.contains(neighbor)){
                     continue;
                 }
-                if (grid[newY][newX] == ' ' || grid[newY][newX] == 'G') {
+                if (grid[newY][newX] == ' ' || grid[newY][newX] == 'E') {
 
                     Node neighborNode;
                     if (!nodes.containsKey(neighbor)) {
