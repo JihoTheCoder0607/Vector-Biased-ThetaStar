@@ -32,7 +32,8 @@ def find_in_maze(grid, x):
             col_idx = row.index(x)
             return row_idx, col_idx
 
-def visualize_maze(grid):
+def visualize_maze(grid, path):
+    plt.figure(figsize=(10, 10))
     plot = copy.deepcopy(grid)
     for i in range(len(plot)):
         for j in range(len(plot[i])):
@@ -46,6 +47,11 @@ def visualize_maze(grid):
                 plot[i][j] = 3.0
             elif plot[i][j] == "#":
                 plot[i][j] = 4.0
+    for i in range(1, len(path)):
+        node1 = path[i-1]
+        node2 = path[i]
+        plt.annotate('', xy=(node2.position.x, node2.position.y), xytext=(node1.position.x, node1.position.y),
+                     arrowprops=dict(facecolor='red', lw=0.1))
     plt.imshow(plot)
     plt.show()
 
@@ -60,7 +66,7 @@ VBTStar = jpype.JClass("VBTStar")
 
 Point = jpype.JClass("java.awt.Point")
 
-grid = create_maze(grid_n=20, n_mazes=10)[2]
+grid = create_maze(grid_n=20, n_mazes=10)[3]
 
 JavaGrid = JArray(JArray(JChar))
 
@@ -88,7 +94,7 @@ for node in path:
     else:
         java_grid[node.position.y][node.position.x] = 'P'
 
-visualize_maze([list(row) for row in java_grid])
+visualize_maze([list(row) for row in java_grid], path)
 
 for row in java_grid:
     for element in row:
