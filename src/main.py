@@ -5,6 +5,17 @@ from maze_dataset import MazeDataset, MazeDatasetConfig
 from maze_dataset.generation import LatticeMazeGenerators
 import matplotlib.pyplot as plt
 import copy
+import random
+
+def rectangle(grid, x, y, n):
+    xspan = (0, len(grid[0]) - x)
+    yspan = (0, len(grid) - y)
+    for i in range(n):
+        x_point = random.choice(range(*xspan))
+        y_point = random.choice(range(*yspan))
+        for j in range(y):
+            for k in range(x):
+                grid[y_point+j][x_point+k] = "#"
 
 def create_maze(grid_n, n_mazes):
 	cfg = MazeDatasetConfig(
