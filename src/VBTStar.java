@@ -34,6 +34,6 @@ public class VBTStar extends ThetaStar {
 
     @Override
     protected double getPenalty(Node parent, Node node) {
-        return 3 * crossTrack(node) + 2 * angle(parent, node);
+        return crossTrack(node) + angle(parent, node);
     }
 }
