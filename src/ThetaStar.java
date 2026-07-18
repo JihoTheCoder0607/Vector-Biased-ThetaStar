@@ -21,28 +21,32 @@ public class ThetaStar extends AStar {
         int err = dx - dy;
 
         while (true) {
-            if (x1 < 0 || x1 >= grid[0].length || y1 < 0 || y1 >= grid.length) {
-                return false;
-            }
-
-            if (grid[y1][x1] == '#') {
-                return false;
-            }
-            if (x1 == x2 && y1 == y2) {
-                return true;
-            }
+            if (x1 < 0 || x1 >= grid[0].length || y1 < 0 || y1 >= grid.length) return false;
+            if (grid[y1][x1] == '#') return false;
+            if (x1 == x2 && y1 == y2) return true;
 
             int e2 = 2 * err;
+            int nextX = x1;
+            int nextY = y1;
+
             if (e2 > -dy) {
                 err -= dy;
-                x1 += sx;
+                nextX += sx;
             }
             if (e2 < dx) {
                 err += dx;
-                y1 += sy;
+                nextY += sy;
             }
-        }
 
+            if (nextX != x1 && nextY != y1) {
+                if (grid[y1][nextX] == '#' && grid[nextY][x1] == '#') {
+                    return false;
+                }
+            }
+
+            x1 = nextX;
+            y1 = nextY;
+        }
     }
 
     protected double getPenalty(Node parent, Node node) {
@@ -60,14 +64,13 @@ public class ThetaStar extends AStar {
             int newX = currentNode.position.x + dx;
             int newY = currentNode.position.y + dy;
 
-            if (dx != 0 && dy != 0) {
-                if (grid[currentNode.position.y][newX] == '#' || grid[newY][currentNode.position.x] == '#') {
-                    continue;
-                }
-            }
-
             Point neighbor = new Point(newX, newY);
             if (0 <= newX && newX < grid[0].length && 0 <= newY && newY < grid.length) {
+                if (dx != 0 && dy != 0) {
+                    if (grid[currentNode.position.y][newX] == '#' && grid[newY][currentNode.position.x] == '#') {
+                        continue;
+                    }
+                }
                 if (closedSet.contains(neighbor)){
                     continue;
                 }

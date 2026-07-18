@@ -42,14 +42,13 @@ public class AStar {
             int newX = currentNode.position.x + dx;
             int newY = currentNode.position.y + dy;
 
-            if (dx != 0 && dy != 0) {
-                if (grid[currentNode.position.y][newX] == '#' || grid[newY][currentNode.position.x] == '#') {
-                    continue;
-                }
-            }
-
             Point neighbor = new Point(newX, newY);
             if (0 <= newX && newX < grid[0].length && 0 <= newY && newY < grid.length) {
+                if (dx != 0 && dy != 0) {
+                    if (grid[currentNode.position.y][newX] == '#' || grid[newY][currentNode.position.x] == '#') {
+                        continue;
+                    }
+                }
                 if (closedSet.contains(neighbor)){
                     continue;
                 }

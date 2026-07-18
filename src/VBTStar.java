@@ -5,8 +5,12 @@ import static java.lang.Math.abs;
 import static java.lang.Math.pow;
 
 public class VBTStar extends ThetaStar {
-    public VBTStar(char[][] grid, Point start, Point goal) {
+    private final double alpha;
+    private final double beta;
+    public VBTStar(char[][] grid, Point start, Point goal, double alpha, double beta) {
         super(grid, start, goal);
+        this.alpha = alpha;
+        this.beta = beta;
     }
 
     private double crossTrack(Node node) {
@@ -32,8 +36,7 @@ public class VBTStar extends ThetaStar {
         return diff / Math.PI;
     }
 
-    @Override
-    protected double getPenalty(Node parent, Node node) {
-        return crossTrack(node) + angle(parent, node);
+    protected double getPenalty(Node parent, double alpha, Node node, double beta) {
+        return alpha * crossTrack(node) + beta * angle(parent, node);
     }
 }

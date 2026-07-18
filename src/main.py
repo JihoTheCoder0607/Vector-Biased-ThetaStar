@@ -87,11 +87,6 @@ def simulate(grid_size, model_class):
 
     JavaGrid = JArray(JArray(JChar))
 
-    java_grid = JavaGrid([
-        JArray(JChar)(row)
-        for row in grid
-    ])
-
     startr, startc = find_in_maze(grid, "S")
     endr, endc = find_in_maze(grid, "E")
 
@@ -99,8 +94,15 @@ def simulate(grid_size, model_class):
     goal = Point(endc, endr)
 
     for model_c in model_class:
+        java_grid = JavaGrid([
+            JArray(JChar)(row)
+            for row in grid
+        ])
 
-        model = model_c(java_grid, start, goal)
+        if model_c == VBTStar:
+            model = model_c(java_grid, start, goal, 2, 2)
+        else:
+            model = model_c(java_grid, start, goal)
         result = model.search()
 
         path = model.reconstructPath(result)
