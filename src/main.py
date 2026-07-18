@@ -1,8 +1,6 @@
 import jpype.imports
 import os
 from jpype import JArray, JChar
-from maze_dataset import MazeDataset, MazeDatasetConfig
-from maze_dataset.generation import LatticeMazeGenerators
 import matplotlib.pyplot as plt
 import copy
 import random
@@ -15,22 +13,32 @@ def rectangle(grid, x, y, n):
         y_point = random.choice(range(*yspan))
         for j in range(y):
             for k in range(x):
-                grid[y_point+j][x_point+k] = "#"
+                if grid[y_point+j][x_point+k] != "S" and grid[y_point+j][x_point+k] != "E":
+                    grid[y_point+j][x_point+k] = "#"
+    return grid
 
-def create_maze(grid_n, n_mazes):
-	cfg = MazeDatasetConfig(
-		name="test",
-		grid_n=grid_n,
-		n_mazes=n_mazes,
-		maze_ctor=LatticeMazeGenerators.gen_dfs,
-	)
-	dataset = MazeDataset.from_config(cfg)
+def create_maze(grid_size):
+    grid = [[" " for _ in range(grid_size[1])] for _ in range(grid_size[0])]
 
-	grids = []
-	for maze in dataset:
-		maze = maze.as_ascii().replace('X', ' ')
-		grids.append([[ch for ch in line] for line in maze.splitlines()])
-	return grids
+    grid = rectangle(grid, 2, 1, 130)
+    grid = rectangle(grid, 3, 2, 70)
+    grid = rectangle(grid, 1, 1, 300)
+
+    sr = random.choice(range(grid_size[0]))
+    sc = random.choice(range(grid_size[1]))
+
+    while grid[sr][sc] == "#":
+        sr = random.choice(range(grid_size[0]))
+        sc = random.choice(range(grid_size[1]))
+    grid[sr][sc] = "S"
+
+    er = random.choice(range(grid_size[0]))
+    ec = random.choice(range(grid_size[1]))
+    while (er == sr and ec == ec) or grid[er][ec] == "#":
+        er = random.choice(range(grid_size[0]))
+        ec = random.choice(range(grid_size[1]))
+    grid[er][ec] = "E"
+    return grid
 
 def print_maze(grid):
 	for row in grid:
@@ -77,7 +85,8 @@ VBTStar = jpype.JClass("VBTStar")
 
 Point = jpype.JClass("java.awt.Point")
 
-grid = create_maze(grid_n=20, n_mazes=10)[3]
+grid = create_maze((60, 50))
+
 
 JavaGrid = JArray(JArray(JChar))
 
