@@ -1,4 +1,4 @@
-# Vector-Based Theta* 🔍
+# Vector-Biased Theta* 🔍
 
 A Java project exploring autonomous robot navigation through the development and evaluation of geometry-inspired path planning algorithms.
 
