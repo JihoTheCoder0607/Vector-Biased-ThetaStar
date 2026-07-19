@@ -119,5 +119,22 @@ public class AStar {
             }
         }
         System.out.println(distance);
+
+        // 2. Angle
+        Node p1, p2, p3;
+        double angle1;
+        double angle2;
+        double angleSum = 0;
+        for (int i = 0; i <= path.size()-3; i++) {
+            p1 = path.get(i);
+            p2 = path.get(i+1);
+            p3 = path.get(i+2);
+
+            angle1 = atan2(p2.position.y-p1.position.y, p2.position.x-p1.position.x) * 180 / Math.PI;
+            angle2 = atan2(p3.position.y-p2.position.y, p3.position.x-p2.position.x) * 180 / Math.PI;
+
+            angleSum += (angle2-angle1);
+        }
+        System.out.println(angleSum/(path.size()-1));
     }
 }
