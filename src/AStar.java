@@ -4,6 +4,7 @@ import java.util.*;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 import static java.lang.Math.atan2;
+import static java.lang.Math.abs;
 
 public class AStar {
     PriorityQueue<Node> openList = new PriorityQueue<>();
@@ -133,8 +134,11 @@ public class AStar {
             angle1 = atan2(p2.position.y-p1.position.y, p2.position.x-p1.position.x) * 180 / Math.PI;
             angle2 = atan2(p3.position.y-p2.position.y, p3.position.x-p2.position.x) * 180 / Math.PI;
 
-            angleSum += (angle2-angle1);
+            double diff = angle2 - angle1;
+            while (diff <= -180) diff += 360;
+            while (diff > 180)  diff -= 360;
+            angleSum += abs(diff);
         }
-        System.out.println(angleSum/(path.size()-1));
+        System.out.println(angleSum/(path.size()-2));
     }
 }
