@@ -31,21 +31,10 @@ Instead of only considering:
 - Distance traveled
 - Estimated distance to the goal
 
-1. At each iteration, the algorithm first filters the open list to nodes whose Euclidean distance from the current node is less than a configurable radius $r$. These nodes form the candidate set for subsequent evaluation.
-2. Theta* is used as the underlying search algorithm to compute the path cost $g(n)$, heuristic $h(n)$, and evaluation function $f(n)=g(n)+h(n)$ for each candidate & make Line Of Sight checks.
-3. Nodes where $f(n) < f(n)_{min} * 1.15$ will be selected into a focal list
-4. For each node in the focal list, a penalty score will be calculated where
-
-- $p(n) = \alpha d(n) + \beta a(n)$
-- $d(n)$: normalized score of the robot's distance from the direct line connecting the start and goal (cross-track score)
-- $a(n)$: normalized score of the difference in angle between the direct line and the trajectory vector
-
-5. The penalty will be used to decide which search node to expand next.
-
-The hypothesis is that encouraging the robot to remain close to this line may reduce unnecessary exploration while still allowing detours around obstacles when required.
-
-**Note:** This algorithm is currently experimental and its effectiveness will be evaluated through benchmarking.
-
+1. This is a variation of the standard Theta*.
+2. In $f(n) = g(n) + h(n)$, $g(n) = cost + \alpha * cross track (normalized) + \beta * AngleDeviationToGlobalVector + \gamma * AngleTurn$
+3. This will make the algorithm be biased to the global vector between start to goal, while ensuring a smooth path
+4. 
 ## Planned Features ✨
 
 - Implementation of VBT*

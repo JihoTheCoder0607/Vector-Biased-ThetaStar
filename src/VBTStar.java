@@ -20,7 +20,7 @@ public class VBTStar extends ThetaStar {
         double numerator = abs(dy * node.position.x - dx * node.position.y + goal.x * start.y - goal.y * start.x);
         double denominator = sqrt(pow(dx, 2) + pow(dy, 2));
 
-        return numerator / denominator / calculateDistance(this.start, this.goal);
+        return numerator / denominator / calculateDistance(new Point(this.grid[0].length-1, this.grid.length-1), new Point(0, 0));
     }
 
     private double angle(Node parent, Node node) {

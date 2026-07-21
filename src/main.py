@@ -20,9 +20,9 @@ def rectangle(grid, x, y, n):
 def create_maze(grid_size):
     grid = [[" " for _ in range(grid_size[1])] for _ in range(grid_size[0])]
 
-    grid = rectangle(grid, 5, 2, 600)
-    grid = rectangle(grid, 7, 6, 400)
-    grid = rectangle(grid, 1, 1, 600)
+    grid = rectangle(grid, 5, 2, 800)
+    grid = rectangle(grid, 7, 6, 600)
+    grid = rectangle(grid, 1, 1, 800)
 
     sr = random.choice(range(grid_size[0]))
     sc = random.choice(range(grid_size[1]))
@@ -118,6 +118,6 @@ def simulate(grid_size, model_class):
         visualize_maze([list(row) for row in java_grid], path)
         model.metrics(path)
 
-simulate((300, 200), [AStar, ThetaStar, VBTStar])
+simulate((600, 400), [AStar, ThetaStar, VBTStar])
 
 jpype.shutdownJVM()

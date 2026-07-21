@@ -67,6 +67,8 @@ public class AStar {
                     }
 
                     if (tentativeG < neighborNode.g) {
+                        openList.remove(neighborNode);
+                        
                         neighborNode.parent = currentNode;
                         neighborNode.g = tentativeG;
                         neighborNode.h = calculateDistance(neighbor, goal);
