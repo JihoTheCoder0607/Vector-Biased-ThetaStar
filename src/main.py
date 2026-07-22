@@ -100,7 +100,7 @@ def simulate(grid_size, model_class):
         ])
 
         if model_c == VBTStar:
-            model = model_c(java_grid, start, goal, 1, 1)
+            model = model_c(java_grid, start, goal, 100, 100, 100)
         else:
             model = model_c(java_grid, start, goal)
         result = model.search()

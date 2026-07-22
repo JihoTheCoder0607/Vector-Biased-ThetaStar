@@ -7,10 +7,12 @@ import static java.lang.Math.pow;
 public class VBTStar extends ThetaStar {
     private final double alpha;
     private final double beta;
-    public VBTStar(char[][] grid, Point start, Point goal, double alpha, double beta) {
+    private final double gamma;
+    public VBTStar(char[][] grid, Point start, Point goal, double alpha, double beta, double gamma) {
         super(grid, start, goal);
         this.alpha = alpha;
         this.beta = beta;
+        this.gamma = gamma;
     }
 
     private double crossTrack(Node node) {
@@ -36,8 +38,28 @@ public class VBTStar extends ThetaStar {
         return diff / Math.PI;
     }
 
+    private double turn(Node parent, Node node) {
+        double angle1;
+        if (parent.parent != null) {
+            angle1 = atan2(parent.position.y - parent.parent.position.y, parent.position.x-parent.parent.position.x);
+        }
+        else {
+            angle1 = 0;
+        }
+
+        double angle2 = atan2(node.position.y - parent.position.y, node.position.x - parent.position.x);
+
+        double diff = Math.abs(angle1 - angle2);
+
+        if (diff > Math.PI) {
+            diff = (2 * Math.PI) - diff;
+        }
+
+        return diff / Math.PI;
+    }
+
     @Override
     protected double getPenalty(Node parent, Node node) {
-        return this.alpha * crossTrack(node) + this.beta * angle(parent, node);
+        return this.alpha * crossTrack(node) + this.beta * angle(parent, node) + this.gamma * turn(parent, node);
     }
 }
