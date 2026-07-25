@@ -109,6 +109,8 @@ def simulate(grid_size, model_class, show, num_trials=10):
             result = model.search()
 
             path = model.reconstructPath(result)
+            if (model_c == VBTStar):
+                path = model.shortcutRayCasting(path)
 
             if trial in show:
                 for node in path:
@@ -129,7 +131,6 @@ def simulate(grid_size, model_class, show, num_trials=10):
     for model_c, sums in total_metrics.items():
         avg_dist = sums[0] / num_trials
         avg_angle = sums[1] / num_trials
-        # JPype classes might not have __name__, using str() or a custom name mapping
         name = model_c.__name__ if hasattr(model_c, '__name__') else str(model_c)
         print("{} - Distance: {:.2f}, Avg Angle Turn: {:.2f}".format(name, avg_dist, avg_angle))
 

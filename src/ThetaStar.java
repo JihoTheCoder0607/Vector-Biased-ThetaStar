@@ -6,7 +6,7 @@ public class ThetaStar extends AStar {
     public ThetaStar(char[][] grid, Point start, Point goal) {
         super(grid, start, goal);
     }
-    private boolean lineOfSight(Node node1, Node node2) {
+    protected boolean lineOfSight(Node node1, Node node2) {
         int x1 = node1.position.x;
         int y1 = node1.position.y;
         int x2 = node2.position.x;
