@@ -4,6 +4,8 @@ from jpype import JArray, JChar
 import matplotlib.pyplot as plt
 import copy
 import random
+import itertools
+import time
 
 def rectangle(grid, x, y, n):
     xspan = (0, len(grid[0]) - x)
@@ -17,28 +19,31 @@ def rectangle(grid, x, y, n):
                     grid[y_point+j][x_point+k] = "#"
     return grid
 
-def create_maze(grid_size):
-    grid = [[" " for _ in range(grid_size[1])] for _ in range(grid_size[0])]
+def create_maze(grid_size, n):
+    grids = []
+    for i in range(n):
+        grid = [[" " for _ in range(grid_size[1])] for _ in range(grid_size[0])]
 
-    grid = rectangle(grid, 5, 2, 800)
-    grid = rectangle(grid, 7, 6, 600)
-    grid = rectangle(grid, 1, 1, 800)
+        grid = rectangle(grid, 5, 2, 800)
+        grid = rectangle(grid, 7, 6, 600)
+        grid = rectangle(grid, 1, 1, 800)
 
-    sr = random.choice(range(grid_size[0]))
-    sc = random.choice(range(grid_size[1]))
-
-    while grid[sr][sc] == "#":
         sr = random.choice(range(grid_size[0]))
         sc = random.choice(range(grid_size[1]))
-    grid[sr][sc] = "S"
 
-    er = random.choice(range(grid_size[0]))
-    ec = random.choice(range(grid_size[1]))
-    while (er == sr and ec == sc) or grid[er][ec] == "#":
+        while grid[sr][sc] == "#":
+            sr = random.choice(range(grid_size[0]))
+            sc = random.choice(range(grid_size[1]))
+        grid[sr][sc] = "S"
+
         er = random.choice(range(grid_size[0]))
         ec = random.choice(range(grid_size[1]))
-    grid[er][ec] = "E"
-    return grid
+        while (er == sr and ec == sc) or grid[er][ec] == "#":
+            er = random.choice(range(grid_size[0]))
+            ec = random.choice(range(grid_size[1]))
+        grid[er][ec] = "E"
+        grids.append(grid)
+    return grids
 
 def find_in_maze(grid, x):
     for row_idx, row in enumerate(grid):
@@ -82,58 +87,97 @@ AStar = jpype.JClass("AStar")
 
 Point = jpype.JClass("java.awt.Point")
 
-def simulate(grid_size, model_class, show, num_trials=10):
-    total_metrics = {model_c: [0.0, 0.0] for model_c in model_class}
 
-    for trial in range(num_trials):
-        grid = create_maze(grid_size)
+def simulate(grid_size, model_class, show, num_trials=10, hyperparameters=None):
+    # Warming up JVM
+    print("Warming up the Java Virtual Machine (JVM)...")
+    dummy_grid = create_maze(grid_size, 1)
+    dummy_startr, dummy_startc = find_in_maze(dummy_grid[0], "S")
+    dummy_endr, dummy_endc = find_in_maze(dummy_grid[0], "E")
+    dummy_start = Point(dummy_startc, dummy_startr)
+    dummy_goal = Point(dummy_endc, dummy_endr)
 
-        JavaGrid = JArray(JArray(JChar))
-
-        startr, startc = find_in_maze(grid, "S")
-        endr, endc = find_in_maze(grid, "E")
-
-        start = Point(startc, startr)
-        goal = Point(endc, endr)
-
+    for i in range(100):
         for model_c in model_class:
-            java_grid = JavaGrid([
-                JArray(JChar)(row)
-                for row in grid
-            ])
-
+            JavaGrid = JArray(JArray(JChar))
+            java_grid = JavaGrid([JArray(JChar)(row) for row in dummy_grid[0]])
             if model_c == VBTStar:
-                model = model_c(java_grid, start, goal, 50, 50, 50)
+                model = model_c(java_grid, dummy_start, dummy_goal, 0.0, 0.0, 0.0)
             else:
-                model = model_c(java_grid, start, goal)
-            result = model.search()
+                model = model_c(java_grid, dummy_start, dummy_goal)
+            res = model.search()
+            p = model.reconstructPath(res)
+            if model_c in (VBTStar, ThetaStar):
+                p = model.shortcutRayCasting(p)
+    print("JVM Warmed up successfully. Starting actual benchmark...")
 
-            path = model.reconstructPath(result)
-            if (model_c == VBTStar):
-                path = model.shortcutRayCasting(path)
+    param_list = hyperparameters if hyperparameters is not None else [(None, None, None)]
+    grid = create_maze(grid_size, num_trials)
 
-            if trial in show:
-                for node in path:
-                    if node.position.y == startr and node.position.x == startc:
-                        java_grid[node.position.y][node.position.x] = 'S'
-                    elif node.position.y == endr and node.position.x == endc:
-                        java_grid[node.position.y][node.position.x] = 'E'
+    JavaGrid = JArray(JArray(JChar))
+
+    astar_done = False
+    theta_done = False
+    with open("result.txt", "a") as file:
+        file.write(f"Grid Size: {grid_size[0]} x {grid_size[1]}\n")
+        for a, b, g in itertools.product(*param_list):
+            total_metrics = {model_c: [0.0, 0.0, 0.0, 0.0] for model_c in model_class}
+            for trial in range(num_trials):
+                startr, startc = find_in_maze(grid[trial], "S")
+                endr, endc = find_in_maze(grid[trial], "E")
+                start = Point(startc, startr)
+                goal = Point(endc, endr)
+
+                for model_c in model_class:
+                    java_grid = JavaGrid([JArray(JChar)(row) for row in grid[trial]])
+
+                    if model_c == VBTStar and hyperparameters is not None:
+
+                        model = model_c(java_grid, start, goal, a, b, g)
+                    elif model_c == AStar:
+                        model = model_c(java_grid, start, goal)
                     else:
-                        java_grid[node.position.y][node.position.x] = 'P'
+                        model = model_c(java_grid, start, goal)
 
-                visualize_maze([list(row) for row in java_grid], path)
+                    start_time = time.perf_counter()
+                    result = model.search()
+                    path = model.reconstructPath(result)
 
-            m = model.metrics(path)
-            total_metrics[model_c][0] += m[0]
-            total_metrics[model_c][1] += m[1]
+                    if model_c in (VBTStar, ThetaStar):
+                        path = model.shortcutRayCasting(path)
+                    end_time = time.perf_counter()
 
-    print("\nAverage Metrics over {} trials:".format(num_trials))
-    for model_c, sums in total_metrics.items():
-        avg_dist = sums[0] / num_trials
-        avg_angle = sums[1] / num_trials
-        name = model_c.__name__ if hasattr(model_c, '__name__') else str(model_c)
-        print("{} - Distance: {:.2f}, Avg Angle Turn: {:.2f}".format(name, avg_dist, avg_angle))
+                    elapsed_time = end_time - start_time
 
-simulate((600, 400), [AStar, ThetaStar, VBTStar], show=[0, 499, 999], num_trials=1000)
+                    if trial in show:
+                        for node in path:
+                            ny, nx = node.position.y, node.position.x
+                            if ny == startr and nx == startc:
+                                java_grid[ny][nx] = 'S'
+                            elif ny == endr and nx == endc:
+                                java_grid[ny][nx] = 'E'
+                            else:
+                                java_grid[ny][nx] = 'P'
+                        visualize_maze([list(row) for row in java_grid], path)
+
+                    m = model.metrics(path)
+                    total_metrics[model_c][0] += m[0]
+                    total_metrics[model_c][1] += m[1]
+                    total_metrics[model_c][2] += elapsed_time
+                    total_metrics[model_c][3] += m[2]
+            file.write(f"Average Metrics over {num_trials} trials:\n")
+            file.write(f"Hyperparameters: {a} {b} {g}\n")
+            for model_c, sums in total_metrics.items():
+                avg_dist = sums[0] / num_trials
+                avg_angle = sums[1] / num_trials
+                avg_time = sums[2] / num_trials
+                avg_nodes = sums[3] / num_trials
+                name = model_c.__name__ if hasattr(model_c, '__name__') else str(model_c)
+                file.write(f"{name} - Distance: {avg_dist:.2f}, Avg Angle Turn: {avg_angle:.2f}, Avg Time: {avg_time}, Avg Nodes Expanded: {avg_nodes}\n")
+                file.write("\n")
+            print(f"Done with Combination: {a}, {b}, {g}")
+
+hyperparameters = [[0, 1, 2, 5, 10, 15, 20, 25, 50, 100], [0, 1, 2, 5, 10, 15, 20, 25, 50, 100], [0, 1, 2, 5, 10, 15, 20, 25, 50, 100]]
+simulate((600, 400), [AStar, ThetaStar, VBTStar], [], 2000, hyperparameters)
 
 jpype.shutdownJVM()

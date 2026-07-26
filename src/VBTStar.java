@@ -63,26 +63,4 @@ public class VBTStar extends ThetaStar {
     protected double getPenalty(Node parent, Node node) {
         return this.alpha * crossTrack(node) + this.beta * angle(parent, node) + this.gamma * turn(parent, node);
     }
-
-    public ArrayList<Node> shortcutRayCasting(ArrayList<Node> path) {
-        int i = 0;
-        while (i < path.size() - 1) {
-            int j = path.size() - 1;
-            boolean shortcutFound = false;
-
-            while (j > i + 1) {
-                if (lineOfSight(path.get(i), path.get(j))) {
-                    path.subList(i + 1, j).clear();
-                    shortcutFound = true;
-                    break;
-                }
-                j--;
-            }
-
-            if (!shortcutFound) {
-                i++;
-            }
-        }
-        return path;
-    }
 }

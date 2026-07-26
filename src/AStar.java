@@ -7,20 +7,26 @@ import static java.lang.Math.atan2;
 import static java.lang.Math.abs;
 
 public class AStar {
-    PriorityQueue<Node> openList = new PriorityQueue<>();
-    HashSet<Point> closedSet = new HashSet<>();
-    HashMap<Point, Node> nodes = new HashMap<>();
+    PriorityQueue<Node> openList;
+    HashSet<Point> closedSet;
+    HashMap<Point, Node> nodes;
     char[][] grid;
     Point start;
     Point goal;
+    int expandedNodes;
 
     public AStar(char[][] grid, Point start, Point goal) {
         this.grid = grid;
         this.start = start;
         this.goal = goal;
+        this.expandedNodes=0;
     }
 
     public void initialize() {
+        this.openList = new PriorityQueue<>();
+        this.closedSet = new HashSet<>();
+        this.nodes = new HashMap<>();
+
         Node startNode = new Node(start);
         startNode.g = 0;
         startNode.h = calculateDistance(start, goal);
@@ -32,7 +38,7 @@ public class AStar {
     }
 
     public double calculateDistance(Point a, Point b) {
-        return pow(pow((b.x - a.x), 2) + pow((b.y-a.y), 2), 0.5);
+        return sqrt(pow((b.x - a.x), 2) + pow((b.y-a.y), 2));
     }
 
     void getNeighbors(Node currentNode) {
@@ -86,6 +92,7 @@ public class AStar {
         while (!openList.isEmpty()) {
 
             Node current = openList.poll();
+            this.expandedNodes ++;
 
             if (closedSet.contains(current.position)) {
                 continue;
@@ -141,6 +148,6 @@ public class AStar {
             angleSum += abs(diff);
         }
         double avgAngle = path.size() > 2 ? angleSum/(path.size()-2) : 0;
-        return new double[]{distance, avgAngle};
+        return new double[]{distance, avgAngle, this.expandedNodes};
     }
 }

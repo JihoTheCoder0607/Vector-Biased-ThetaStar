@@ -1,6 +1,7 @@
 import java.awt.*;
 
 import static java.lang.Math.*;
+import java.util.ArrayList;
 
 public class ThetaStar extends AStar {
     public ThetaStar(char[][] grid, Point start, Point goal) {
@@ -39,7 +40,7 @@ public class ThetaStar extends AStar {
             }
 
             if (nextX != x1 && nextY != y1) {
-                if (grid[y1][nextX] == '#' && grid[nextY][x1] == '#') {
+                if (grid[y1][nextX] == '#' || grid[nextY][x1] == '#') {
                     return false;
                 }
             }
@@ -111,5 +112,25 @@ public class ThetaStar extends AStar {
             }
         }
     }
+    public ArrayList<Node> shortcutRayCasting(ArrayList<Node> path) {
+        int i = 0;
+        while (i < path.size() - 1) {
+            int j = path.size() - 1;
+            boolean shortcutFound = false;
 
+            while (j > i + 1) {
+                if (lineOfSight(path.get(i), path.get(j))) {
+                    path.subList(i + 1, j).clear();
+                    shortcutFound = true;
+                    break;
+                }
+                j--;
+            }
+
+            if (!shortcutFound) {
+                i++;
+            }
+        }
+        return path;
+    }
 }
