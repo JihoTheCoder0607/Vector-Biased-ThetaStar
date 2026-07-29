@@ -1,0 +1,15 @@
+Grid Size: 600 x 400
+Average Metrics over 2000 trials:
+Hyperparameters: 0 0 0
+ThetaStar - Distance: 246.59, Avg Angle Turn: 12.49, Avg Time: 0.2858101121553918, Avg Nodes Expanded: 4220.2935
+
+VBTStar - Distance: 246.59, Avg Angle Turn: 12.49, Avg Time: 0.3016110807665391, Avg Nodes Expanded: 4220.2935
+
+Average Metrics over 2000 trials:
+Hyperparameters: 0 0 1
+VBTStar - Distance: 254.68, Avg Angle Turn: 11.44, Avg Time: 0.3408899681570474, Avg Nodes Expanded: 5052.572
+
+Average Metrics over 2000 trials:
+Hyperparameters: 0 0 2
+VBTStar - Distance: 257.89, Avg Angle Turn: 11.07, Avg Time: 0.37282380888273475, Avg Nodes Expanded: 5623.4725
+
