@@ -6,6 +6,7 @@ import copy
 import random
 import itertools
 import time
+import pandas as pd
 
 def rectangle(grid, x, y, n):
     xspan = (0, len(grid[0]) - x)
@@ -167,8 +168,6 @@ def simulate(grid_size, model_class, show, num_trials, file_name, hyperparameter
                     total_metrics[model_c][1] += m[1]
                     total_metrics[model_c][2] += elapsed_time
                     total_metrics[model_c][3] += m[2]
-            file.write(f"Average Metrics over {num_trials} trials:\n")
-            file.write(f"Hyperparameters: {a} {b} {g}\n")
             for model_c, sums in total_metrics.items():
                 avg_dist = sums[0] / num_trials
                 avg_angle = sums[1] / num_trials
@@ -176,30 +175,24 @@ def simulate(grid_size, model_class, show, num_trials, file_name, hyperparameter
                 avg_nodes = sums[3] / num_trials
                 if (model_c == VBTStar):
                     results[(model_c, a, b, g)] = [avg_dist, avg_angle, avg_time, avg_nodes]
-                    name = model_c.__name__ if hasattr(model_c, '__name__') else str(model_c)
-                    file.write(f"{name} - Distance: {avg_dist:.2f}, Avg Angle Turn: {avg_angle:.2f}, Avg Time: {avg_time}, Avg Nodes Expanded: {avg_nodes}\n")
-                    file.write("\n")
                 else:
                     results[(model_c, 0, 0, 0)] = [avg_dist, avg_angle, avg_time, avg_nodes]
-                    if not done:
-                        name = model_c.__name__ if hasattr(model_c, '__name__') else str(model_c)
-                        file.write(f"{name} - Distance: {avg_dist:.2f}, Avg Angle Turn: {avg_angle:.2f}, Avg Time: {avg_time}, Avg Nodes Expanded: {avg_nodes}\n")
-                        file.write("\n")
-                    done = True
-            print(f"Done with Combination: {a}, {b}, {g}")
+                name = model_c.__name__ if hasattr(model_c, '__name__') else str(model_c)
+                file.write(f"{name} - Distance: {avg_dist:.2f}, Avg Angle Turn: {avg_angle:.2f}, Avg Time: {avg_time}, Avg Nodes Expanded: {avg_nodes}\n")
+                file.write("\n")
+
     return results
 
 def epsilon_constraint(results, e):
     theta_d, theta_a, theta_t, theta_n = results[(ThetaStar, 0, 0, 0)]
     theta_d *= (1+e[0])
-    theta_a *= (1+e[1])
     theta_t *= (1+e[2])
     theta_n *= (1+e[3])
 
     results = {k:v for k, v in results.items() if k != (ThetaStar, 0, 0, 0)}
     best = {}
     for key, value in results.items():
-        if value[0] < theta_d and value[1] < theta_a and value[2] < theta_t and value[3] < theta_n:
+        if value[0] < theta_d and value[2] < theta_t and value[3] < theta_n:
             best[key] = value[1]
     if not best:
         raise ValueError(
@@ -213,12 +206,18 @@ def epsilon_constraint(results, e):
 hyperparameters = [[0, 1, 2, 4, 8, 16, 32, 64, 128], [0, 1, 2, 4, 8, 16, 32, 64, 128], [0, 1, 2, 4, 8, 16, 32, 64, 128]]
 
 # 1. Grid Search to find best hyperparameter values
-results = simulate((600, 400), [ThetaStar, VBTStar], [], 2000, "grid_search.txt", hyperparameters)
-best_combination = epsilon_constraint(results, [0.2, -1, 0.2, 0.2])
+results = simulate((600, 400), [ThetaStar, VBTStar], [], 500, "grid_search.txt", hyperparameters)
+best_combination = epsilon_constraint(results, [0.3, -1, 0.3, 0.3])
 print(best_combination)
-print(results[best_combination])
+print(results[*best_combination])
+
+results_df = pd.DataFrame(results)
+results_df.to_csv("grid_search.csv")
 
 # 2. Simulation
-simulate((600, 400), [AStar, ThetaStar, VBTStar], [], 2000, "result.txt", [[best_combination[1]], [best_combination[2]], [best_combination[3]]])
+results = simulate((600, 400), [AStar, ThetaStar, VBTStar], [], 2000, "result.txt", [[best_combination[1]], [best_combination[2]], [best_combination[3]]])
+
+results_df = pd.DataFrame(results)
+results_df.to_csv("results.csv")
 
 jpype.shutdownJVM()
